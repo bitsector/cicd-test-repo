@@ -41,6 +41,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'k8s.yaml', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         export KUBECONFIG=$KUBECONFIG_FILE
+                        kubectl get nodes
                         kubectl apply -f deployment.yaml --validate=false
                         kubectl apply -f service.yaml --validate=false
                     '''
