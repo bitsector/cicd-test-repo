@@ -47,8 +47,8 @@ pipeline {
     stage('Deploy') {
             steps {
                 // Execute kubectl commands
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
+                sh 'kubectl apply -f deployment.yaml --validate=false'
+                sh 'kubectl apply -f service.yaml --validate=false'
             }
         }
   }
