@@ -44,13 +44,27 @@ pipeline {
     //   }
     // }
 
-    stage('Deploy') {
+    // stage('Deploy') {
+    //         steps {
+    //             // Execute kubectl commands
+    //             sh 'kubectl apply -f deployment.yaml --validate=false'
+    //             sh 'kubectl apply -f service.yaml --validate=false'
+    //         }
+    //     }
+
+    stages {
+        stage('Deploy to Kubernetes') {
             steps {
-                // Execute kubectl commands
-                sh 'kubectl apply -f deployment.yaml --validate=false'
-                sh 'kubectl apply -f service.yaml --validate=false'
+                withCredentials([file(credentialsId: 'k8s.yaml', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG_FILE
+                        kubectl apply -f deployment.yaml --validate=false
+                        kubectl apply -f service.yaml --validate=false
+                    '''
+                }
             }
         }
+    }
   }
 
 }
