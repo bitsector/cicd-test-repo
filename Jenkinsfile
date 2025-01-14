@@ -36,14 +36,21 @@ pipeline {
       }
     }
 
-    stage('Deploying flask app') {
-      steps {
-        script {
-          kubernetesDeploy(configs: "deployment.yaml", "service.yaml", kubeconfigId: 'minikube')
-        }
-      }
-    }
+    // stage('Deploying flask app') {
+    //   steps {
+    //     script {
+    //       kubernetesDeploy(configs: "deployment.yaml", "service.yaml", kubeconfigId: 'minikube')
+    //     }
+    //   }
+    // }
 
+    stage('Deploy') {
+            steps {
+                // Execute kubectl commands
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl apply -f service.yaml'
+            }
+        }
   }
 
 }
