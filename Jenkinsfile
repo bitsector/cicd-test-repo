@@ -60,7 +60,7 @@ pipeline {
                                 projectId: 'gcp-cloud-run-tests',
                                 clusterName: 'my-cluster',
                                 location: 'us-central1-a',
-                                manifestPattern: 'manifest.yaml',
+                                manifestPattern: 'deployment.yaml',
                                 credentialsId: 'gke-credentials',
                                 verifyDeployments: true
                             ])
