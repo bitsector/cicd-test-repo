@@ -37,14 +37,34 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: 'k8s.yaml', variable: 'KUBECONFIG_FILE')]) {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG_FILE
-                        kubectl get nodes
-                        kubectl apply -f deployment.yaml --validate=false
-                        kubectl apply -f service.yaml --validate=false
-                    '''
+            parallel {
+                stage('K8s Deployment') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            withCredentials([file(credentialsId: 'k8s.yaml', variable: 'KUBECONFIG_FILE')]) {
+                                sh '''
+                                    export KUBECONFIG=$KUBECONFIG_FILE
+                                    kubectl get nodes
+                                    kubectl apply -f deployment.yaml --validate=false
+                                    kubectl apply -f service.yaml --validate=false
+                                '''
+                            }
+                        }
+                    }
+                }
+                stage('Independent Stage 1') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh 'echo "hello world stage 1" > text1.txt'
+                        }
+                    }
+                }
+                stage('Independent Stage 2') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh 'echo "hello world stage 2" > text2.txt'
+                        }
+                    }
                 }
             }
         }
