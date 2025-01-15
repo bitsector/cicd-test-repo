@@ -52,6 +52,21 @@ pipeline {
                         }
                     }
                 }
+                stage('Deploy to GKE') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            step([
+                                $class: 'KubernetesEngineBuilder',
+                                projectId: 'gcp-cloud-run-tests',
+                                clusterName: 'my-cluster',
+                                location: 'us-central1-a',
+                                manifestPattern: 'deployment.yaml,service.yaml',
+                                credentialsId: 'gke-credentials',
+                                verifyDeployments: true
+                            ])
+                        }
+                    }
+                }
                 stage('Independent Stage 1') {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
