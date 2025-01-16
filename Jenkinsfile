@@ -1,49 +1,59 @@
 pipeline {
 
-  environment {
-    dockerimagename = "antonbiz/jenkins-test-app"
-    dockerImage = ""
-  }
-
-  agent any
-
-  stages {
-
-    stage('Checkout Source') {
-      steps {
-        git 'https://github.com/bitsector/cicd-test-repo.git'
-      }
+    environment {
+        dockerimagename = "antonbiz/jenkins-test-app"
+        dockerImage = ""
     }
 
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = docker.build dockerimagename
+    agent any
+
+    stages {
+
+        stage('Checkout Source') {
+            steps {
+                git 'https://github.com/bitsector/cicd-test-repo.git'
+            }
         }
-      }
-    }
 
-    stage('Pushing Image') {
-      environment {
-               registryCredential = 'antonbiz-dockerhub'
-           }
-      steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("1.0")
-          }
+        stage('Build Image') {
+            steps {
+                script {
+                    dockerImage = docker.build(dockerimagename)
+                }
+            }
         }
-      }
-    }
 
-    stage('Deploying flask app') {
-      steps {
-        script {
-          kubernetesDeploy(configs: "deployment.yaml", "service.yaml", kubeconfigId: 'minikube')
+        stage('Pushing Image') {
+            environment {
+                registryCredential = 'antonbiz-dockerhub'
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', registryCredential) {
+                        dockerImage.push("1.0")
+                    }
+                }
+            }
         }
-      }
+
+        stage('Deploy to Kubernetes') {
+            parallel {
+                stage('Deploy to GKE') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            step([
+                                $class: 'KubernetesEngineBuilder',
+                                projectId: 'gcp-cloud-run-tests',
+                                clusterName: 'my-cluster',
+                                location: 'asia-south1',
+                                manifestPattern: 'deployment.yaml',
+                                credentialsId: 'gke-credentials',
+                                verifyDeployments: true
+                            ])
+                        }
+                    }
+                }
+            }
+        }
     }
-
-  }
-
 }
