@@ -53,7 +53,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Deploy to GKE') {
+                stage('Deploy to GKE 2') {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                             step([
