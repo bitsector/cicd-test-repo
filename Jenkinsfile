@@ -53,6 +53,21 @@ pipeline {
                         }
                     }
                 }
+                stage('Deploy to GKE') {
+                    steps {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            step([
+                                $class: 'KubernetesEngineBuilder',
+                                projectId: 'gcp-cloud-run-tests',
+                                clusterName: 'my-cluster',
+                                location: 'asia-south1',
+                                manifestPattern: 'service.yaml',
+                                credentialsId: 'gke-credentials',
+                                verifyDeployments: true
+                            ])
+                        }
+                    }
+                }
             }
         }
     }
