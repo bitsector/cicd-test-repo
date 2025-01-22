@@ -45,7 +45,7 @@ pipeline {
                                 $class: 'KubernetesEngineBuilder',
                                 projectId: 'gcp-cloud-run-tests',
                                 clusterName: 'my-cluster',
-                                location: 'asia-south1',
+                                location: 'us-central1-c',
                                 manifestPattern: 'deployment.yaml',
                                 credentialsId: 'gke-credentials',
                                 verifyDeployments: true
@@ -60,7 +60,7 @@ pipeline {
                                 $class: 'KubernetesEngineBuilder',
                                 projectId: 'gcp-cloud-run-tests',
                                 clusterName: 'my-cluster',
-                                location: 'asia-south1',
+                                location: 'us-central1-c',
                                 manifestPattern: 'service.yaml',
                                 credentialsId: 'gke-credentials',
                                 verifyDeployments: true
